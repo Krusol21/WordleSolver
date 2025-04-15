@@ -16,74 +16,62 @@ def initialize_letter_status():
 def update_letter_status_for_guess(
     guess_in_right_place, guess_in_wrong_place, guess_not_in_word, letter_status
 ):
-    """
-    Given three lists of letters for the *current guess*:
-      guess_in_right_place, guess_in_wrong_place, guess_not_in_word
-    plus the global letter_status dict, update letter_status as follows:
-      - if a letter is in_right_place now, set status to "in_right_place" (highest priority).
-      - else if a letter is in_wrong_place now, set status to "in_wrong_place" only if it
-        isn't already "in_right_place".
-      - else if a letter is not_in_word, set status to "not_in_word" only if it isn't
-        already "in_wrong_place" or "in_right_place".
-    This ensures that once we discover a letter is definitely in the correct place, that
-    knowledge doesn't get overwritten by subsequent guesses. Similarly for other statuses.
-    """
     # For letters in the correct position:
-    for letter in guess_in_right_place:
+    for _, letter in guess_in_right_place:
         letter_status[letter] = "in_right_place"
 
     # For letters in the word, but not in the right position
-    for letter in guess_in_wrong_place:
-        # Only update if we haven't discovered a better status
+    for _, letter in guess_in_wrong_place:
         if letter_status[letter] != "in_right_place":
             letter_status[letter] = "in_wrong_place"
 
     # For letters not in the word at all
     for letter in guess_not_in_word:
-        # Only update if we haven't discovered it's in the word
         if letter_status[letter] == "not_guessed":
             letter_status[letter] = "not_in_word"
 
+
 def wordle_feedback_for_guess(guess: str, solution: str):
     """
-    Standard Wordle-like logic for a single guess:
-      - We do a two-pass approach to handle duplicate letters.
-      - Return three lists of letters from this guess:
-          in_right_place, in_wrong_place, not_in_word.
-      - Duplicates are handled so a letter won't appear multiple times in the same list.
+    Wordle logic with index-aware feedback:
+      - Returns:
+          in_right_place: List of (index, letter) tuples where letter is correct and in correct place.
+          in_wrong_place: List of (index, letter) tuples where letter is correct but in wrong place.
+          not_in_word: List of letters not in the solution.
     """
     guess = guess.upper()
     solution = solution.upper()
     sol_chars = list(solution)
 
-    in_right_place_set = set()
-    in_wrong_place_set = set()
+    in_right_place = []
+    in_wrong_place = []
     not_in_word_set = set()
 
-    # 1st pass: exact matches
+    # Track used letters in solution to avoid reusing them
+    used = [False] * 5
+
+    # First pass: check for letters in the right place
     for i in range(5):
         if guess[i] == sol_chars[i]:
-            in_right_place_set.add(guess[i])
-            sol_chars[i] = None  # Mark used
+            in_right_place.append((i, guess[i]))
+            used[i] = True
 
-    # 2nd pass: letters in the solution but in different positions
+    # Second pass: check for correct letters in the wrong place
     for i in range(5):
-        if guess[i] == solution[i]:
-            continue
-        letter = guess[i]
-        if letter in sol_chars:
-            in_wrong_place_set.add(letter)
-            idx = sol_chars.index(letter)
-            sol_chars[idx] = None  # Use up one occurrence
-        else:
-            not_in_word_set.add(letter)
+        if guess[i] == sol_chars[i]:
+            continue  # Already matched
+        found = False
+        for j in range(5):
+            if not used[j] and guess[i] == sol_chars[j]:
+                in_wrong_place.append((i, guess[i]))
+                used[j] = True
+                found = True
+                break
+        if not found:
+            not_in_word_set.add(guess[i])
 
-    # Convert to sorted lists
-    in_right_place = sorted(in_right_place_set)
-    in_wrong_place = sorted(in_wrong_place_set)
-    not_in_word = sorted(not_in_word_set)
+    return in_right_place, in_wrong_place, sorted(list(not_in_word_set))
 
-    return in_right_place, in_wrong_place, not_in_word
 
 def categorize_global(letter_status):
     """
@@ -156,8 +144,8 @@ def play_wordle_persistent():
 
         # Display the single-guess feedback (optional if you want to see it)
         print(f"\nThis guess: {guess}")
-        print(" in_right_place (this guess):", guess_in_right_place)
-        print(" in_wrong_place (this guess):", guess_in_wrong_place)
+        print(" in_right_place (this guess):", [(i, ch) for i, ch in guess_in_right_place])
+        print(" in_wrong_place (this guess):", [(i, ch) for i, ch in guess_in_wrong_place])
         print(" not_in_word    (this guess):", guess_not_in_word, "\n")
 
         # Display the persistent categories across all guesses so far
