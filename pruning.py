@@ -8,21 +8,21 @@ def wordlePrune(guess, currentWordList, guessColors):
 
     possible_word = [' ']*5
     for index, char in enumerate(guess):
-        if guessColors[index] == 'g': 
+        if guessColors[index] == 'G': 
             possible_word[index] = char
     #print(possible_word)
     #so far, this is the possible word after checking green
 
     not_possible_letters = [set() for _ in range(5)]
     for index, char in enumerate(guess):
-        if guessColors[index] == 'b':  
+        if guessColors[index] == 'B':  
             not_possible_letters[index].add(char)
     #print(not_possible_letters)
     #get the gray letters and their indexes
 
     yellow_letters = [set() for _ in range(5)]
     for index, char in enumerate(guess):
-        if guessColors[index] == 'y':  
+        if guessColors[index] == 'Y':  
             yellow_letters[index].add(char)
     #print(yellow_letters)
     #gets the yellows
@@ -36,15 +36,15 @@ def wordlePrune(guess, currentWordList, guessColors):
             if not validword:
                 break
             
-            if guessColors[index] == 'g': 
+            if guessColors[index] == 'G': 
                 if word[index] != possible_word[index]:
                     validword = False
             
-            if guessColors[index] == 'b': 
+            if guessColors[index] == 'B': 
                 if word[index] in not_possible_letters[index]:
                     validword = False
             
-            if guessColors[index] == 'y': 
+            if guessColors[index] == 'Y': 
                 if word[index] == possible_word[index] or word[index] not in guess:
                     validword = False
         
