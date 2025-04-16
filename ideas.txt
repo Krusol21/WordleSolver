@@ -1,0 +1,20 @@
+We are keeping track of possible solutions, by pruning the possible solutions
+set using pruning.py (called it solutions_words)
+
+For algorithm
+1. Information Gain algorithm
+Steps:
+1st: Make a set of possible words (information_words) that do not have any guessed letters from possibles and targets
+We could also make the information_words contain yellow to figure out order (as long as they are not in a guessed location)
+
+Current heuristic: Choose based on most vowels (naive heuristic)
+
+A threshold/condition to switch to 2
+- If the list of information_words is empty, go to 2
+- If the list does not decrease enough, go to 2
+- If the length of guessing_words is less than the amout of gueses left
+- If we are on the last guess
+
+2. Guessing word algorithm
+Guess based on possible solutions_words
+Will be pruned and probably will only have to run 1-2 times max.
