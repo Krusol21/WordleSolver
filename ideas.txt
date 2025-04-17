@@ -12,7 +12,8 @@ Current heuristic: Choose based on most vowels (naive heuristic)
 A threshold/condition to switch to 2
 - If the list of information_words is empty, go to 2
 - If the list does not decrease enough, go to 2
-- If the length of guessing_words is less than the amout of gueses left
+- If length of guessing_words is 1
+- If the length of guessing_words is less than the amount of gueses left
 - If we are on the last guess
 
 2. Guessing word algorithm

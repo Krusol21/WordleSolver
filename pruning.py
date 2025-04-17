@@ -5,33 +5,11 @@
 # currentWordList - (array) list of words still possible originating from the text file
 # guessColor - (string) five letter word containing characters "g" for green, "y" for yellow, and "b" for gray/black
 def wordlePrune(guess, currentWordList, guessColors):
-
-    possible_word = [' ']*5
-    for index, char in enumerate(guess):
-        if guessColors[index] == 'G': 
-            possible_word[index] = char
-    #print(possible_word)
-    #so far, this is the possible word after checking green
-
-    not_possible_letters = [set() for _ in range(5)]
-    for index, char in enumerate(guess):
-        if guessColors[index] == 'B':  
-            not_possible_letters[index].add(char)
-    #print(not_possible_letters)
-    #get the gray letters and their indexes
-
-    yellow_letters = [set() for _ in range(5)]
-    for index, char in enumerate(guess):
-        if guessColors[index] == 'Y':  
-            yellow_letters[index].add(char)
-    #print(yellow_letters)
-    #gets the yellows
-
     #start pruning process
     newWordList = []
     greens  = [c for c, g in zip(guess, guessColors) if g == "G"]
     yellows = [c for c, g in zip(guess, guessColors) if g == "Y"]
-    greys   = [c for c, g in zip(guess, guessColors) if g == "B"]
+    grays   = [c for c, g in zip(guess, guessColors) if g == "B"]
 
     # letters that must appear at least once somewhere (greens+yellows)
     must_have = greens + yellows
@@ -60,8 +38,9 @@ def wordlePrune(guess, currentWordList, guessColors):
         if not valid:
             continue
 
-        # 2. Grey letters cannot appear anywhere (unless that letter was also G/Y)
-        for ch in greys:
+        # 2. gray letters cannot appear anywhere (unless that letter was also G/Y)
+        # we ban each gray letter unless it appears in the word (double-letter rule)
+        for ch in grays:
             if ch not in must_have and ch in word:
                 valid = False
                 break
@@ -80,10 +59,55 @@ def wordlePrune(guess, currentWordList, guessColors):
                 break
         if valid:
             newWordList.append(word)
-            
+
     return newWordList
 
+def infoPrune(guess, currentWordList, guessColors):
+    #start pruning process
+    newWordList = []
+    greens  = [c for c, g in zip(guess, guessColors) if g == "G"]
+    yellows = [c for c, g in zip(guess, guessColors) if g == "Y"]
+    grays   = [c for c, g in zip(guess, guessColors) if g == "B"]
 
+    for word in currentWordList:
+        if len(set(word)) < 5:          # any repeated char → next word
+            continue
+        valid = True
+
+        # 1. Position checks (greens / yellows)
+        for i in range(5):
+            g_c = guess[i]
+            w_c = word[i]
+            color = guessColors[i]
+
+            # if there is a green character in the word, remove from list
+            if color == "G":
+                if w_c == g_c:
+                    valid = False
+                    break
+            # if there is a yellow char in word, it can stay if in diff loc
+            elif color == "Y":
+                if w_c == g_c:          # cannot be in same spot …
+                    valid = False
+                    break
+
+        if not valid:
+            continue
+
+        # 2. forbid all grays outright
+        # --- ❷  CHANGE: simpler gray test
+        for ch in grays:
+            if ch in word:                   # any gray ⇒ reject
+                valid = False
+                break
+        if not valid:
+            continue
+
+
+        if valid:
+            newWordList.append(word)
+
+    return newWordList
 
 
 

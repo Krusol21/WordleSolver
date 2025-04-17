@@ -5,7 +5,7 @@ You can manually set the SECRET_WORD to define what the answer should be.
 import string
 from word_lists import get_target
 from word_lists import is_valid_guess
-from pruning import wordlePrune
+from pruning import wordlePrune, infoPrune
 
 SECRET_WORD = get_target()
 
@@ -87,22 +87,26 @@ def wordle_feedback_for_guess(guess: str, solution: str):
 def categorize_global(letter_status):
     greens, yellows, grays, untried = [], [], [], []
 
-    for L, e in letter_status.items():
-        st = e["state"]
+    for L, entry in letter_status.items():
+        st    = entry["state"]
+        green = sorted(entry["green"])
+        yel   = sorted(entry["yellow"])
+
         if st == "in_right_place":
-            greens.append((L, sorted(e["green"])))          # ONLY green pos
-            if e["yellow"]:                                 # still show forbids
-                yellows.append((L, sorted(e["yellow"])))
+            greens.append((L, green))      # list indices that ARE green
         elif st == "in_wrong_place":
-            yellows.append((L, sorted(e["yellow"])))
+            yellows.append((L, yel))       # list indices that CANNOT be yellow
         elif st == "not_in_word":
             grays.append(L)
         else:
             untried.append(L)
 
-    greens.sort(key=lambda t: t[0]); yellows.sort(key=lambda t: t[0])
-    grays.sort(); untried.sort()
+    greens.sort(key=lambda t: t[0])
+    yellows.sort(key=lambda t: t[0])
+    grays.sort()
+    untried.sort()
     return greens, yellows, grays, untried
+
 
 
 def play_wordle_persistent():
@@ -118,8 +122,14 @@ def play_wordle_persistent():
     with open('wordle_targets.txt', 'r') as file:
         targets = file.readlines()
         targets = [target.strip().upper() for target in targets]
+    with open('wordle_possibles.txt', 'r') as file1:
+        possibles = file1.readlines()
+        possibles = [possible.strip().upper() for possible in possibles]
+    
 
-    solutions_list = targets.copy()
+    # solutions_list = targets.copy()
+    solutions_list = possibles + targets
+    information_list = possibles + targets
 
     max_guesses = 6
     for attempt in range(1, max_guesses + 1):
@@ -146,10 +156,17 @@ def play_wordle_persistent():
 
         # run pruning algorithm and print result of len of list
         solutions_list = wordlePrune(guess, solutions_list, guess_colors)
-        print("Length of Possible Solutions List:")
+        print("Length of Viable Solutions List:")
         print(len(solutions_list))
         print("Viable Solutions List:")
         print(solutions_list)
+
+        # run pruning algorithm and print result of len of list
+        information_list = infoPrune(guess, information_list, guess_colors)
+        print("Length of Info Words List:")
+        print(len(information_list))
+        print("Info Words List:")
+        print(information_list)
 
 
         # Step 2: Update the global letter_status
@@ -176,6 +193,23 @@ def play_wordle_persistent():
          global_in_wrong_place,
          global_not_in_word,
          global_not_guessed) = categorize_global(letter_status)
+        
+
+        #-----------------------PRINT BLANKS----------------------
+        pattern = ["_"] * 5           # start with all blanks
+
+        # place confirmed greens
+        for letter, pos_list in global_in_right_place:      # e.g. [('E',[1]), ('N',[3])]
+            for p in pos_list:
+                pattern[p] = letter
+
+        # positions that are NOT green but have at least one yellow ⇒ “?”
+        for letter, pos_list in global_in_wrong_place:      # e.g. [('I',[2,4])]
+            for p in pos_list:
+                if pattern[p] == "_":                       # don’t overwrite a green
+                    pattern[p] = "?"
+
+        print("Known pattern so far :", "".join(pattern))   # e.g.  _E?__
 
         # Display the single-guess feedback (optional if you want to see it)
         print(f"\nThis guess: {guess}")
