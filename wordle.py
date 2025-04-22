@@ -1,3 +1,5 @@
+# noah test
+#noah test 2
 """
 A simple Wordle emulator in Python.
 You can manually set the SECRET_WORD to define what the answer should be.
