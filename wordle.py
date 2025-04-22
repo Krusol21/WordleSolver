@@ -1,5 +1,3 @@
-# noah test
-#noah test 2
 """
 A simple Wordle emulator in Python.
 You can manually set the SECRET_WORD to define what the answer should be.
@@ -233,6 +231,9 @@ def play_wordle_persistent():
             return
 
     print(f"Out of attempts! The secret word was '{SECRET_WORD}'.")
+
+        
+
 
 if __name__ == "__main__":
     play_wordle_persistent()
