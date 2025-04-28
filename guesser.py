@@ -6,6 +6,7 @@ import string
 from word_lists import get_target
 from word_lists import is_valid_guess
 from pruning import wordlePrune, infoPrune
+import random
 
 
 class Guesser:
@@ -15,7 +16,7 @@ class Guesser:
         
         # If narrowing down to few solutions, prioritize that
         if len(solutions_list) <= (7 - attempt):
-            return solutions_list[0]
+            return solutions_list[-1]
 
         guessed_letters = {
             L for L, status in letter_status.items() if status["state"] != "not_guessed"
@@ -32,7 +33,12 @@ class Guesser:
             return (-unguessed_count, -has_yellow)
 
         sorted_words = sorted(information_list, key=sort_key)
-        return sorted_words[0]
+
+        if len(information_list) == 0:
+            return solutions_list[-1]
+
+        top_choices = sorted_words[:5] if len(sorted_words) >= 5 else sorted_words
+        return random.choice(top_choices)
 
 SECRET_WORD = get_target()
 guesser = Guesser()
@@ -167,7 +173,8 @@ def play_wordle_persistent():
         or not is_valid_guess(guess)):
             print("Invalid guess. Please enter exactly 5 letters (A-Z).")
             guess = input(f"Guess #{attempt}: ").strip().upper()
-
+        
+        print(f"\nThis guess: {guess}")
         # For each letter in this guess, if we haven't used it yet, set it to not_in_word
         # but we override that logic with the actual feedback below. (Optional step)
         # For now, we won't force that logic, since we'll see the real feedback anyway.
@@ -240,7 +247,7 @@ def play_wordle_persistent():
         print("Known pattern so far :", "".join(pattern))   # e.g.  _E?__
 
         # Display the single-guess feedback (optional if you want to see it)
-        print(f"\nThis guess: {guess}")
+        #print(f"\nThis guess: {guess}")
         print(" in_right_place (this guess):", [(i, ch) for i, ch in guess_in_right_place])
         print(" in_wrong_place (this guess):", [(i, ch) for i, ch in guess_in_wrong_place])
         print(" not_in_word    (this guess):", guess_not_in_word, "\n")
