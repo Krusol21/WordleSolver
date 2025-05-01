@@ -112,7 +112,7 @@ def categorize_global(letter_status):
 def play_wordle_persistent():
     #ChatGPT-o1
     print("Welcome to the Wordle Emulator!")
-    print(f"SECRET_WORD is set to: {SECRET_WORD} (for testing).")
+    # print(f"SECRET_WORD is set to: {SECRET_WORD} (for testing).")
     print("Up to 6 attempts.\n")
 
     # Initialize the global letter status dict
@@ -231,9 +231,6 @@ def play_wordle_persistent():
             return
 
     print(f"Out of attempts! The secret word was '{SECRET_WORD}'.")
-
-        
-
 
 if __name__ == "__main__":
     play_wordle_persistent()
