@@ -1,5 +1,3 @@
-
-
 # this method prunes the list of possible words from the guess that has been made
 # guess - (string) word used to get
 # currentWordList - (array) list of words still possible originating from the text file

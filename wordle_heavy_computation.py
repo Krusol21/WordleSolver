@@ -2,11 +2,8 @@ import matplotlib.pyplot as plt
 import random
 from tqdm import tqdm
 import os, pickle
-
-"""
-A simple Wordle emulator in Python.
-You can manually set the SECRET_WORD to define what the answer should be.
-"""
+import multiprocessing as mp
+import numpy as np
 import string
 from word_lists import get_target
 from word_lists import is_valid_guess
@@ -195,10 +192,6 @@ def simulate_wordle_game(starting_word, secret_word):
             return attempt  # return number of guesses
 
     return 7  # 7 means failure (loss)
-
-
-import multiprocessing as mp
-import numpy as np
 
 # ---------- 1.  Load word lists ONCE -----------------------------------
 with open("wordle_possibles.txt") as f:
