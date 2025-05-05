@@ -7,7 +7,7 @@ Wordle‑AI is a self‑contained collection of scripts that
 * emulate the original **Wordle** game in the terminal,  
 * provide two interchangeable solver bots  
   * **Entropy Guesser** – Expected‑information minimizer  
-  * **Heuristic Guesser** – “use new letters first, favour yellows” with random tie‑break  
+  * **Heuristic Guesser** – “use new letters first, favor yellows” with random tie‑break  
 * prune candidate word lists with a fast, standalone filter,  
 * benchmark thousands of start words in parallel and plot the results, and  
 * ship the full **NYT target list** (`wordle_targets.txt`) plus the extended **valid‑guess list** (`wordle_possibles.txt`).
